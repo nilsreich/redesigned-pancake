@@ -9,10 +9,8 @@ export const SideBar = () => {
         return null
     }
 
-    const handleClick = () => {
-        editor.chain().focus().insertContent('<math-component>33-2/x</math-component>').run()
-    }
     return (<div className='flex-none  border-l'>
-        <Button variant={'ghost'} size={'sm'} onClick={() => handleClick()}>get content</Button>
+
+        <Button variant={'ghost'} size={'sm'} onClick={() => editor.chain().focus().setTaskComponent().run()}>get content</Button>
     </div>)
 }

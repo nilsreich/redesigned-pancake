@@ -6,6 +6,7 @@ import { EditorProvider } from '@tiptap/react'
 import { MenuBar } from './Menubar'
 import React from 'react'
 import MathExtension from "@/components/mathExtension";
+import TaskExtension from "@/components/taskExtension";
 
 const content = `
 <h2>
@@ -38,7 +39,7 @@ display: none;
 </blockquote>
 `
 const extensions = [
-  StarterKit, MathExtension
+  StarterKit, MathExtension, TaskExtension
 ]
 
 const editorProps = {
