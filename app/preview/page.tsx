@@ -1,9 +1,9 @@
 import { Tiptap } from "@/components/Tiptap";
 
-export default function Home() {
+export default function Preview() {
   return (
     <main>
-      <Tiptap editable/>
+      <Tiptap editable={false} />
     </main>
   )
 }

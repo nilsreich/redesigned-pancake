@@ -1,4 +1,4 @@
-import { mergeAttributes, Node } from "@tiptap/core";
+import { mergeAttributes, Node, Command } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 
 import TaskComponent from "@/components/taskComponent";
@@ -6,8 +6,7 @@ import TaskComponent from "@/components/taskComponent";
 declare module '@tiptap/core' {
     interface Commands<ReturnType> {
         taskComponent: {
-
-            setTaskComponent: () => ReturnType;
+            setTaskComponent: (attributes: { tasks: string[] }) => ReturnType;
         }
     }
 }
@@ -19,7 +18,13 @@ export default Node.create({
 
     atom: true,
 
-
+    addAttributes() {
+        return {
+            tasks: {
+                default: ['3x-2', '2x+3', '3x+2', '2x-3'],
+            },
+        } as const;
+    },
     parseHTML() {
         return [
             {
@@ -28,12 +33,12 @@ export default Node.create({
         ];
     },
 
-
     addCommands() {
         return {
-            setTaskComponent: () => ({ commands }) => {
+            setTaskComponent: (attributes: { tasks: string[] }): Command => ({ commands }) => {
                 return commands.insertContent({
-                    type: this.type.name
+                    type: this.type.name,
+                    attrs: attributes
                 });
             }
         };

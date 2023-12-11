@@ -1,62 +1,60 @@
-'use client'
+"use client";
 
-import StarterKit from '@tiptap/starter-kit'
-import { SideBar } from './Sidebar'
-import { EditorProvider } from '@tiptap/react'
-import { MenuBar } from './Menubar'
-import React from 'react'
+import StarterKit from "@tiptap/starter-kit";
+import { SideBar } from "./Sidebar";
+import { MenuBar } from "./Menubar";
+import React, { useEffect } from "react";
 import MathExtension from "@/components/mathExtension";
 import TaskExtension from "@/components/taskExtension";
+import AiExtension from "@/components/aiExtension";
 
-const content = `
-<h2>
-  Hi there,
-</h2>
-<p>
-  this is a <em>basic</em> example of <strong>tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:
-</p>
-<ul>
-  <li>
-    That’s a bullet list with one …
-  </li>
-  <li>
-    … or two list items.
-  </li>
-</ul>
-<p>
-  Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:
-</p>
-<pre><code class="language-css">body {
-display: none;
-}</code></pre>
-<p>
-  I know, I know, this is impressive. It’s only the tip of the iceberg though. Give it a try and click a little bit around. Don’t forget to check the other examples too.
-</p>
-<blockquote>
-  Wow, that’s amazing. Good work, boy! 👏
-  <br />
-  — Mom
-</blockquote>
-`
-const extensions = [
-  StarterKit, MathExtension, TaskExtension
-]
+import { useEditor, EditorContent } from "@tiptap/react";
+
+const extensions = [StarterKit, MathExtension, TaskExtension, AiExtension];
 
 const editorProps = {
   attributes: {
-    class: 'prose focus:outline-none m-5 '
-  }
-}
+    class: "prose focus:outline-none m-5 ",
+  },
+};
 
+const channel = new BroadcastChannel("editor");
+const content = "3x";
+export const Tiptap = ({ editable = false }: { editable: boolean }) => {
+  const editor = useEditor({
+    extensions,
+    content,
+    editable,
+    editorProps,
+    onUpdate: ({ editor }) => {
+      if (editable) {
+        const jsonContent = editor.getJSON();
+        channel.postMessage(jsonContent);
+      }
+    },
+  });
 
-export const Tiptap = () => {
+  useEffect(() => {
+    if (!editable) {
+      // Add an event listener to the channel
+      const listener = (event: MessageEvent) => {
+        // Update the editor content
+        editor?.commands.setContent(event.data);
+      };
+      channel.addEventListener("message", listener);
 
+      // Remove the event listener when the component unmounts
+      return () => {
+        channel.removeEventListener("message", listener);
+      };
+    }
+  }, [editable, editor]);
 
-
-  return (<div className='flex w-full flex-wrap [&>*:nth-child(2)]:flex-auto'>
-    <EditorProvider slotBefore={<MenuBar />} slotAfter={<SideBar />} extensions={extensions} content={content} editorProps={editorProps}>{' '}
-    </EditorProvider>
-  </div>
-
-  )
-}
+  return (
+    <div className="flex w-full flex-wrap [&>*:nth-child(2)]:flex-auto">
+      {editor && <MenuBar editor={editor} />}
+      <EditorContent editor={editor} />
+      {editor && <SideBar editor={editor} />}
+    </div>
+  );
+};
